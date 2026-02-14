@@ -1,9 +1,10 @@
-import React from 'react'
+import ThemeSwitch from "@/components/ui/switch";
 
-export default function page() {
+export default function Dashboard() {
   return (
-    <div>
+    <div className="w-full">
       Dashboard
+      <ThemeSwitch />
     </div>
   )
 }
