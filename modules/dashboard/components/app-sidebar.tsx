@@ -9,12 +9,12 @@ import { useSession } from '@/lib/auth-client';
 import { ChevronDown, CreditCard, Github, Layers, LayoutDashboard, LucideIcon, MessageSquareCode, Settings, User2 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react'
+// import { useState } from 'react'
 import SignoutButton from './signout-button';
 
 export default function AppSidebar() {
 
-  const [mounted, setMounted] = useState(false);
+  // const [mounted, setMounted] = useState(false);
   const pathname = usePathname()
 
 
