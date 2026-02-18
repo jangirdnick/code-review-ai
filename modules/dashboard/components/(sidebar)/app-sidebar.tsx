@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 // import { useState } from 'react'
 import SignoutButton from './signout-button';
+import ThemeSwitch from '@/components/ui/switch';
 
 export default function AppSidebar() {
 
@@ -106,6 +107,10 @@ export default function AppSidebar() {
 
                 <DropdownMenuSeparator className="bg-border/60" />
 
+                <div className='w-full'>
+                  <ThemeSwitch/>
+                </div>
+                
                 <DropdownMenuGroup>
                   <DropdownMenuItem asChild>
                     <Link href="/dashboard/profile" className="flex items-center gap-2 px-3 py-2.5 text-sm cursor-pointer hover:bg-accent/70 transition-colors">

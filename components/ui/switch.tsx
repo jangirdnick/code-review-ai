@@ -80,18 +80,23 @@ export default function ThemeSwitch() {
   }
 
   return (
-    <Switch
-      checked={theme === "dark"}
-      onCheckedChange={toggleTheme}
-      className="h-7 w-12 border-zinc-100 data-[state=checked]:bg-zinc-800 data-[state=unchecked]:bg-zinc-200"
-      icon={
-        theme === "dark" ? (
-          <MoonIcon className="h-4 w-4 text-yellow-300" />
-        ) : (
-          <SunMediumIcon className="h-4 w-4 text-amber-500" />
-        )
-      }
-      thumbClassName="h-6 w-6 data-[state=checked]:translate-x-5 bg-white dark:bg-zinc-900 shadow-md"
-    />
+<Switch
+  checked={theme === "dark"}
+  onCheckedChange={toggleTheme}
+  className="h-7 w-full rounded-sm data-[state=checked]:bg-zinc-800 data-[state=unchecked]:bg-zinc-200"
+  icon={
+    theme === "dark" ? (
+      <MoonIcon className="h-4 w-4 text-yellow-300" />
+    ) : (
+      <SunMediumIcon className="h-4 w-4 text-amber-500" />
+    )
+  }
+  thumbClassName="
+    h-6 w-6
+    transition-all duration-300 ease-in-out
+    bg-white dark:bg-zinc-900 shadow-md
+  "
+/>
+
   );
 }

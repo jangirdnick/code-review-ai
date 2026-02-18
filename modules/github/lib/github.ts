@@ -1,68 +1,95 @@
 import { auth } from "@/lib/auth"
 import prisma from "@/lib/db"
 import { headers } from "next/headers"
-import {Octokit} from "octokit"
+import { Octokit } from "octokit"
 
+/* -------------------- GET GITHUB TOKEN -------------------- */
 
 export const getGithubToken = async () => {
-    const session = await auth.api.getSession({headers: await headers()})
-    if(!session) throw new Error("Unauthorized")
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
 
-    const account = await prisma.account.findFirst({
-        where: {
-            id: session.user.id,
-            providerId: "github"
-        }
-    })
-    if(!account?.accessToken) throw new Error("Not found github accesstoken")
-    return account.accessToken
+  if (!session?.user) {
+    throw new Error("Unauthorized")
+  }
+
+  const account = await prisma.account.findFirst({
+    where: {
+      userId: session.user.id,
+      providerId: "github",
+    },
+  })
+
+  if (!account?.accessToken) {
+    throw new Error("GitHub access token not found")
+  }
+
+  return account.accessToken
 }
 
+/* -------------------- GET GITHUB CLIENT -------------------- */
 
-export async function fetchUserContribution(token:string, username: string) {
-    const octokit = new Octokit({auth: token})
+export const getGithubClient = async () => {
+  const token = await getGithubToken()
 
-    const qurey = `
-    qurey($username:String!){
-      user(login:$username){
-        contributionCollection {
-          contributionCalendar{
-            totalContributions
-            weeks{
-              contributionDays{
-                contributionCount
-                data
-                color
-              }
+  const octokit = new Octokit({ auth: token })
+  const { data: user } = await octokit.rest.users.getAuthenticated()
+
+  return {
+    octokit,
+    user,
+    token,
+  }
+}
+
+/* -------------------- FETCH CONTRIBUTION CALENDAR -------------------- */
+
+export async function fetchUserContribution(token: string) {
+  const octokit = new Octokit({ auth: token })
+
+  const query = `
+  query {
+    viewer {
+      contributionsCollection {
+        contributionCalendar {
+          totalContributions
+          weeks {
+            contributionDays {
+              contributionCount
+              date
+              color
             }
           }
         }
       }
     }
-    `
+  }
+  `
 
-    interface contributiondata {
-        user: {
-            contributionCollection:{
-                contributionCalendar:{
-                    totalContributions: number,
-                    weeks:{
-                        contributionCount: number
-                        data: string | Date
-                        color: string
-                    }
-                }
-            }
+  interface ContributionData {
+    viewer: {
+      contributionsCollection: {
+        contributionCalendar: {
+          totalContributions: number
+          weeks: {
+            contributionDays: {
+              contributionCount: number
+              date: string
+              color: string
+            }[]
+          }[]
         }
+      }
     }
+  }
 
-    try {
-        const response: contributiondata = await octokit.graphql(qurey, {username})
+  try {
+    const response = await octokit.graphql<ContributionData>(query)
 
-        return response.user.contributionCollection.contributionCalendar
-        
-
-    } catch (error) {        
-
-    }
+    return response.viewer.contributionsCollection.contributionCalendar
+  } catch (error) {
+    console.error("GitHub GraphQL Error:", error)
+    throw new Error("Failed to fetch contributions")
+  }
 }
