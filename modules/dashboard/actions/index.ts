@@ -1,6 +1,9 @@
 "use server"
 
-import { fetchUserContribution, getGithubClient } from "../../github/lib/github"
+import { auth } from "@/lib/auth"
+import { fetchUserContribution, getGithubClient, getGithubToken } from "../../github/lib/github"
+import { headers } from "next/headers"
+import { Octokit } from "octokit"
 
 /* =========================
    CONTRIBUTION STATS
@@ -129,5 +132,27 @@ export async function getMonthlyActivity() {
   } catch (error) {
     console.error("Error fetching monthly activity:", error)
     return []
+  }
+}
+
+
+export const getRepositories = async (page: number = 1, perPage: number = 10) => {
+  try {
+
+    const token = await getGithubToken();
+    const octokit = new Octokit({auth: token})
+
+    const {data} = await octokit.rest.repos.listForAuthenticatedUser({
+      sort: "updated",
+      direction: "desc",
+      visibility: "all",
+      per_page: perPage,
+      page: page
+    })
+
+    return data;
+
+  } catch (error) {
+    console.error("Server error for get repositories", error)
   }
 }
