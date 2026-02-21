@@ -2,10 +2,10 @@
 
 import { auth } from "@/lib/auth"
 import prisma from "@/lib/db"
+import { getSessionUser } from "@/modules/auth/actions"
 import { getRepositories } from "@/modules/dashboard/actions"
+import { createWebHook } from "@/modules/github/lib/github"
 import { headers } from "next/headers"
-
-
 
 
 export const fetchRepositories = async (page: number = 1, perPage: number = 10) => {
@@ -31,4 +31,38 @@ export const fetchRepositories = async (page: number = 1, perPage: number = 10) 
         console.error("Server error for fetch repositories: ", error)
         return []
     }
+}
+
+export const connectRepository = async (owner: string, repo: string, githubId: number) => {
+  try {
+
+    const session = await getSessionUser()
+    if(!session) throw new Error("Unauthorized")
+
+    // TODO: Check if user can connect more repo
+
+    const webhook = await createWebHook(owner, repo)
+    if(webhook){
+      await prisma.repository.create({
+        data: {
+          githubId: BigInt(githubId),
+          name: repo,
+          owner,
+          fullName: `${owner}/${repo}`,
+          url: `https://github.com/${owner}/${repo}`,
+          userId: session?.user.id
+        }
+      })
+    }
+
+    // TODO: INCREMENT REPOSITORY COUNT FOR USAGE TRACKING
+
+    // TODO: TRIGGER REPOSITORY INDEXING FOR RAG (FIRE AND FORGET)
+    
+    return webhook
+    
+  } catch (error) {
+      console.error("Server error for connect repositories", error)
+      return
+  }
 }
