@@ -53,3 +53,19 @@ export const handleSignout = async () => {
         }
     }
 }
+
+export const getSessionUser  = async () => {
+    try {
+        
+        const session = await auth.api.getSession({
+            headers: await headers()
+        })
+        if(!session) throw new Error("Unauthorized")
+
+        return session
+
+    } catch (error) {
+        console.error("Server error for get session user: ", error)
+        return;
+    }
+}

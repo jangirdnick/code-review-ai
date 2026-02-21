@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import RepositoryListSkeleton from '@/modules/repository/components/repository-list-skeleton';
+import { useConnectRepository } from '@/modules/repository/hooks/use-connect-repository';
 import { useRepositories } from '@/modules/repository/hooks/use-repositories';
 import { ExternalLink, Search, Star } from 'lucide-react';
 import Link from 'next/link';
@@ -26,6 +27,8 @@ interface Repository {
 export default function RepositoryPage() {
 
   const {data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage} = useRepositories()
+  const {mutate: connectRepo} = useConnectRepository()
+
 
   const [searchQurey, setSearchQurey] = useState("")
   const [localConnectingId, setLocalConnectingId] = useState<number | null>(null)
@@ -84,7 +87,14 @@ export default function RepositoryPage() {
   ) as Repository[]
 
   const handleConnect = (repo:Repository) => {
-
+    setLocalConnectingId(repo.id)
+    connectRepo({
+      owner: repo.full_name.split("/")[0],
+      repo: repo.name,
+      githubId: repo.id
+    }, {
+      onSettled: () => setLocalConnectingId(null)
+    })
   }
 
   return (
@@ -148,7 +158,8 @@ export default function RepositoryPage() {
                       <Button
                       onClick={() => handleConnect(repo)}
                       disabled={localConnectingId === repo.id || repo.isConnected}
-                      variant={repo.isConnected ? "outline" : "default"}>
+                      variant={repo.isConnected ? "outline" : "default"}
+                      className='cursor-pointer'>
                         {localConnectingId === repo.id ? "Connecting..." : repo.isConnected ? "connected" : "connect"}
                       </Button>
                     </div>
