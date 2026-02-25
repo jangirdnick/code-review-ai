@@ -24,7 +24,7 @@ export default function AppSidebar() {
   { title: "Repository",       url: "/dashboard/repository",   icon: Layers },
   { title: "Reviewa",          url: "/dashboard/reviewa",      icon: MessageSquareCode },
   { title: "Subscription",     url: "/dashboard/subscription", icon: CreditCard },
-  { title: "Settings",         url: "/dashboard/reviewa",      icon: Settings },
+  { title: "Settings",         url: "/dashboard/settings",      icon: Settings },
   ];
 
   const isActive = (url: string) => {
