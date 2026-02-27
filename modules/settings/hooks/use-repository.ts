@@ -22,7 +22,7 @@ export const useDisconnectRepository = () => {
         mutationFn: async (repositoryId: string) => await disconnectRepository(repositoryId),
         onSuccess: (result) => {
             if(result.success){
-                queryClient.invalidateQueries({queryKey: ["repository"]})
+                queryClient.invalidateQueries({queryKey: ["repository", "repositories"]})
                 toast.success( result.message || "Repository disconnected successfully")
             } else toast.error(result.error || "Failed to disconnect repository")
         },
@@ -40,7 +40,7 @@ export const useDisconnectAllRepository = () => {
         mutationFn: async () => await disconnectAllRepository(),
         onSuccess: (result) => {
             if(result.success){
-                queryClient.invalidateQueries({queryKey: ["repository"]})
+                queryClient.invalidateQueries({queryKey: ["repository", "repositories"]})
                 toast.success("All repositories disconnected successfully")
             } else toast.error(result.error || "Failed to disconnect all repositories")
         },
