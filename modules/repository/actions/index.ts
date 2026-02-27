@@ -1,5 +1,6 @@
 "use server"
 
+import { inngest } from "@/inngest/client"
 import { auth } from "@/lib/auth"
 import prisma from "@/lib/db"
 import { getSessionUser } from "@/modules/auth/actions"
@@ -59,6 +60,19 @@ export const connectRepository = async (owner: string, repo: string, githubId: n
 
     // TODO: TRIGGER REPOSITORY INDEXING FOR RAG (FIRE AND FORGET)
     
+    try {
+      await inngest.send({
+        name: "repository.connected",
+        data: {
+          owner,
+          repo,
+          userId: session.user.id
+        }
+      })
+    } catch (error) {
+      console.error("Failed to send repository.connected event to Inngest: ", error)
+    }
+
     return webhook
     
   } catch (error) {
